@@ -1,0 +1,552 @@
+/* --- Styles for Hover Actions on Grid Rows --- */
+.vikcraft-gantt-container *,
+.vikcraft-gantt-container *::before,
+.vikcraft-gantt-container *::after {
+    box-sizing: border-box;
+}
+
+.gantt-task-actions {
+    display: none;
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    z-index: 2;
+}
+
+.gantt-grid-row:hover .gantt-task-actions {
+    display: flex;
+}
+
+.gantt-action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+}
+.gantt-action-btn:hover {
+    background-color: #e9ecef;
+}
+.gantt-action-btn.delete:hover {
+    background-color: #ffebee;
+    color: var(--danger-color);
+}
+
+:root {
+    --primary-color: #007bff;
+    --primary-hover-color: #0056b3;
+    --secondary-color: #6c757d;
+    --task-bar-color: #5dade2;
+    --task-bar-progress-color: #2e86c1;
+    --border-color: #e0e0e0;
+    --header-bg-color: #f8f9fa;
+    --row-hover-bg-color: #f1f8ff;
+    --text-color: #333;
+    --text-color-light: #666;
+    --white-color: #fff;
+    --danger-color: #dc3545;
+    --danger-hover-color: #c82333;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f4f7fa;
+    padding: 20px;
+    margin: 0;
+}
+
+h1 {
+    text-align: center;
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+.vikcraft-gantt-container {
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--white-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    height: 70vh;
+}
+
+.gantt-chart-container > .gantt-header {
+    position: sticky;
+    top: 0;
+    z-index: 4; /* Keep it on top */
+}
+
+.gantt-resizer {
+    width: 5px;
+    background-color: #e9ecef;
+    cursor: col-resize;
+    flex-shrink: 0;
+    z-index: 10;
+}
+.gantt-resizer:hover {
+    background-color: var(--primary-color);
+}
+
+.gantt-grid-container {
+    width: 550px;
+    min-width: 300px;
+    border-right: none;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.gantt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--header-bg-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 10px;
+    height: 50px;
+    flex-shrink: 0;
+}
+
+.gantt-header-title {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.btn-add-task {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    border: none;
+    border-radius: 5px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-weight: 500;
+}
+.btn-add-task:hover {
+    background-color: var(--primary-hover-color);
+}
+
+.gantt-grid-header {
+    display: flex;
+    font-weight: 600;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    background-color: #fcfcfc;
+    height: 40px;
+    align-items: center;
+    flex-shrink: 0;
+}
+.gantt-grid-header .gantt-grid-cell {
+    position: relative;
+}
+.gantt-header-resizer {
+    width: 5px;
+    height: 100%;
+    cursor: col-resize;
+    background-color: #f0f0f0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 1;
+}
+.gantt-header-resizer:hover {
+    background-color: var(--primary-color);
+}
+
+
+.gantt-grid-body {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.gantt-grid-row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: var(--white-color);
+    position: relative;
+}
+
+.gantt-grid-row:hover {
+    background-color: var(--row-hover-bg-color);
+}
+
+.gantt-grid-cell {
+    padding: 0 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid #f0f0f0;
+    height: 100%;
+}
+.gantt-grid-cell:last-child {
+    border-right: none;
+}
+.task-name-indent {
+    padding-left: var(--indent-padding, 0px);
+}
+
+.gantt-chart-container {
+    flex-grow: 1;
+    overflow-x: auto;
+    overflow-y: auto; /* <-- ADD THIS LINE */
+    display: flex;
+    flex-direction: column;
+}
+
+.gantt-controls {
+    display: flex;
+    gap: 8px;
+}
+.gantt-controls button {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, border-color 0.2s;
+    font-weight: 500;
+}
+.gantt-controls button:hover {
+    background-color: #e9ecef;
+}
+.gantt-controls button.active {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+}
+
+.gantt-timeline-header {
+    display: flex;
+    background-color: var(--header-bg-color);;
+    position: sticky;
+    top: 50px; /* This value is the height of the header above it */
+    z-index: 3;
+    height: 40px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.gantt-timeline-cell {
+    flex-shrink: 0;
+    text-align: center;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color-light);
+    font-size: 12px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.gantt-timeline-cell .month-marker {
+    position: absolute;
+    top: -20px; /* Position above the day/week cells */
+    left: 0;
+    font-weight: bold;
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+.gantt-bars-container {
+    position: relative;
+    flex-grow: 1;
+}
+
+.gantt-grid-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(to right, #f0f0f0 1px, transparent 1px),
+        linear-gradient(to bottom, #f0f0f0 1px, transparent 1px);
+}
+
+.gantt-bar {
+    position: absolute;
+    background-color: var(--task-bar-color);
+    border-radius: 4px;
+    cursor: move;
+    display: flex;
+    align-items: center;
+    color: var(--white-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: box-shadow 0.2s, background-color 0.2s;
+    z-index: 1;
+}
+.gantt-bar:hover {
+    background-color: #4ba8d8;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+.gantt-bar-progress {
+    height: 100%;
+    background-color: var(--task-bar-progress-color);
+    border-radius: 4px;
+    opacity: 0.8;
+}
+
+.gantt-bar-label {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.gantt-resize-handle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    cursor: ew-resize;
+    z-index: 2;
+}
+
+.gantt-dependency-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.gantt-dependency-line {
+    stroke: #ff9800;
+    stroke-width: 2;
+    fill: none;
+    marker-end: url(#arrow);
+}
+
+.gantt-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+.gantt-modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+.gantt-modal {
+    background: var(--white-color);
+    padding: 25px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s;
+}
+.gantt-modal-overlay.visible .gantt-modal {
+    transform: scale(1);
+}
+.gantt-modal h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+.gantt-modal-content .form-group {
+    margin-bottom: 15px;
+}
+.gantt-modal-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+.gantt-modal-content input, .gantt-modal-content select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+.gantt-modal-content select[multiple] {
+    height: 120px;
+    padding: 0;
+}
+.gantt-modal-content select[multiple] option {
+    padding: 8px 10px;
+}
+
+.gantt-modal-actions {
+    margin-top: 25px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.gantt-modal-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.gantt-modal-actions .btn-save {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+}
+.gantt-modal-actions .btn-save:hover {
+    background-color: var(--primary-hover-color);
+}
+.gantt-modal-actions .btn-cancel {
+    background-color: var(--secondary-color);
+    color: var(--white-color);
+}
+.gantt-modal-actions .btn-delete {
+    background-color: var(--danger-color);
+    color: var(--white-color);
+    margin-right: auto;
+}
+.gantt-modal-actions .btn-delete:hover {
+    background-color: var(--danger-hover-color);
+}
+
+/* --- Add this new style --- */
+.gantt-timeline-dates {
+    display: flex;
+    height: 100%;
+}
+
+/* --- Adjust this existing style --- */
+.gantt-timeline-cell .month-marker {
+    top: -20px; /* Adjust position slightly */
+}
+
+/* --- Adjust this existing style --- */
+/* Replace the old .gantt-controls style with this */
+.gantt-controls {
+    position: sticky;
+    right: 10px;
+    z-index: 4;
+    margin-left: auto; /* Pushes controls to the right */
+    align-self: center; /* Vertically centers the controls */
+    
+    background-color: var(--header-bg-color);
+    padding: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+}
+/* ================================== */
+/* THEME DEFINITIONS & REFINEMENTS    */
+/* ================================== */
+
+/* --- Dark Theme --- */
+.vikcraft-gantt-container.gantt-dark-theme {
+    /* Refined color palette */
+    --primary-color: #0d6efd;
+    --primary-hover-color: #3d8bfd;
+    --secondary-color: #495057;
+    --task-bar-color: #2c4c66;
+    --task-bar-progress-color: #5dade2;
+    --border-color: #404040; /* Darker border for less contrast */
+    --header-bg-color: #212529;
+    --row-hover-bg-color: #343a40;
+    --text-color: #dee2e6;
+    --text-color-light: #adb5bd;
+    --white-color: #1c1c1e; /* Main background */
+    --danger-color: #f25264;
+    --danger-hover-color: #ff6e7e;
+}
+
+/* Set body background for dark theme */
+.gantt-dark-theme, .gantt-dark-theme body {
+    background-color: #121212;
+    color: var(--text-color);
+}
+
+/* FIX: Task table header background and border */
+.gantt-dark-theme .gantt-grid-header {
+    background-color: var(--header-bg-color);
+    border-bottom-color: var(--border-color);
+}
+
+/* FIX: Table cell borders were too white */
+.gantt-dark-theme .gantt-grid-cell {
+    border-right-color: var(--border-color);
+}
+.gantt-dark-theme .gantt-grid-row {
+    border-bottom-color: var(--border-color);
+}
+
+/* FIX: Timeline control button text color */
+.gantt-dark-theme .gantt-controls button {
+    color: var(--text-color);
+}
+
+/* FIX: Timeline background grid lines were too white */
+.gantt-dark-theme .gantt-grid-lines {
+    background-image:
+        linear-gradient(to right, var(--border-color) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
+}
+
+/* Other dark theme refinements */
+.gantt-dark-theme .gantt-header-resizer {
+    background-color: #343a40;
+}
+.gantt-dark-theme .gantt-header-resizer:hover {
+    background-color: var(--primary-color);
+}
+.gantt-dark-theme .gantt-modal {
+    background: #2c2c2e;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+.gantt-dark-theme .gantt-modal-content input, 
+.gantt-dark-theme .gantt-modal-content select {
+    background-color: #3a3a3c;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+.gantt-dark-theme .gantt-controls button:hover {
+    background-color: #343a40;
+}
+.gantt-dark-theme .gantt-action-btn:hover {
+    background-color: #343a40;
+}
+.gantt-dark-theme .gantt-action-btn.delete:hover {
+    background-color: #5c2c31;
+}
+
+/* --- Narrow Theme --- */
+.gantt-narrow-theme .gantt-grid-cell {
+    padding: 0 8px;
+    font-size: 13px;
+}
+.gantt-narrow-theme .gantt-action-btn {
+    padding: 4px;
+}
+.gantt-narrow-theme .task-name-indent {
+    padding-left: var(--indent-padding, 0px) !important;
+}
+.gantt-narrow-theme .gantt-bar-label {
+    font-size: 12px;
+    left: 8px;
+    right: 8px;
+}

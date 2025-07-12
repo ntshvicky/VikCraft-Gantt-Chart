@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 VikCraft Gantt Chart</title>
+    <link rel="stylesheet" href="vikcraft-gantt-styles.css"> <style>
+        body {
+            background-color: #f0f2f5;
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+        }
+        h1,h4 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .controls {
+            max-width: 1200px;
+            margin: 0 auto 20px auto;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .controls button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            background-color: #f8f8f8;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+        .controls button:hover {
+            background-color: #e9e9e9;
+        }
+
+        /* Basic styling for custom modal if you provide one */
+        #custom-modal-content {
+            padding: 20px;
+        }
+        #custom-modal-content .form-group {
+            margin-bottom: 15px;
+        }
+        #custom-modal-content label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        #custom-modal-content input,
+        #custom-modal-content select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        #custom-modal-content select[multiple] {
+            height: 120px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📊 VikCraft Gantt Chart</h1>
+    <h4>Developed by Nitish Srivastava</h4>
+
+    <div class="controls">
+        <span>Change Theme:</span>
+        <button id="theme-light">Light</button>
+        <button id="theme-dark">Dark</button>
+        <button id="theme-narrow">Narrow</button>
+    </div>
+
+    <div id="my-gantt-chart"></div>
+
+    <script src="vikcraft-gantt-script.js"></script> <script>
+        // --- Gantt Chart Initialization ---
+
+        let ganttInstance = null; 
+
+        // --- Static Data Example ---
+        const myTasks = [
+            { id: 1, name: 'Project Kick-off', start: '2025-07-05', end: '2025-07-06', progress: 100, assignedUser: ['alice'], status: 'Completed' },
+            { id: 2, name: 'Phase 1: Research', start: '2025-07-07', end: '2025-07-19', progress: 75, parent: null, assignedUser: ['alice', 'bob'], status: 'In Progress' },
+            { id: 3, name: 'User Interviews', start: '2025-07-08', end: '2025-07-12', progress: 90, parent: 2, dependencies: [1], assignedUser: ['bob'], status: 'In Progress' },
+            { id: 4, name: 'Market Analysis', start: '2025-07-13', end: '2025-07-18', progress: 60, parent: 2, assignedUser: ['charlie'], status: 'In Progress' },
+            { id: 5, name: 'Phase 2: Design', start: '2025-07-20', end: '2025-08-01', progress: 50, dependencies: [2], assignedUser: ['dana', 'eve'], status: 'Not Started' },
+            { id: 6, name: 'Wireframes & Mockups', start: '2025-07-20', end: '2025-07-26', progress: 80, parent: 5, assignedUser: ['eve'], status: 'In Progress' },
+            { id: 7, name: 'Prototyping', start: '2025-07-27', end: '2025-07-31', progress: 30, parent: 5, dependencies: [6], assignedUser: ['dana'], status: 'Not Started' },
+            { id: 8, name: 'Phase 3: Development', start: '2025-08-02', end: '2025-08-20', progress: 10, dependencies: [5], assignedUser: ['frank', 'grace'], status: 'Not Started' },
+            { id: 9, name: 'Backend Implementation', start: '2025-08-03', end: '2025-08-15', progress: 5, parent: 8, assignedUser: ['frank'], status: 'Not Started' },
+            { id: 10, name: 'Frontend Development', start: '2025-08-06', end: '2025-08-19', progress: 15, parent: 8, dependencies: [7], assignedUser: ['grace'], status: 'Not Started' },
+        ];
+
+        const projectResources = [
+            { id: 'alice', name: 'Alice' },
+            { id: 'bob', name: 'Bob' },
+            { id: 'charlie', name: 'Charlie' },
+            { id: 'dana', name: 'Dana' },
+            { id: 'eve', name: 'Eve' },
+            { id: 'frank', name: 'Frank' },
+            { id: 'grace', name: 'Grace' }
+        ];
+
+        /**
+         * Initializes the Gantt chart with static data.
+         */
+        function initializeGanttWithStaticData() {
+            const ganttOptions = {
+                theme: 'light', // Set the initial theme here: 'light', 'dark', or 'narrow'
+                resources: projectResources,
+                columns: [
+                    { id: 'sl_no', text: '#', flex: '0 0 40px' },
+                    { id: 'name', text: 'Task Name', flex: '1 1 220px', type: 'text' },
+                    { id: 'start', text: 'Start Date', flex: '0 0 90px', type: 'date' },
+                    { id: 'end', text: 'End Date', flex: '0 0 90px', type: 'date' },
+                    { id: 'progress', text: 'Progress', flex: '0 0 90px', type: 'number' },
+                    { id: 'assignedUser', text: 'Assignees', flex: '1 1 150px', type: 'multiselect', optionsSource: 'resources' },
+                    { id: 'status', text: 'Status', flex: '0 0 100px', type: 'select', options: ['Not Started', 'In Progress', 'Completed', 'On Hold'] } // Example of a custom dropdown column
+                ],
+                features: { zoom: true, viewModes: true, columnResize: true },
+                
+                onTaskAdd: (task) => {
+                    console.log("Task Added:", task);
+                    // Place your API POST call here if you were using a server
+                    // Example: fetch('/api/tasks', { method: 'POST', body: JSON.stringify(task) });
+                },
+                onTaskUpdate: (task) => {
+                    console.log("Task Updated:", task);
+                    // Place your API PUT/PATCH call here if you were using a server
+                    // Example: fetch(`/api/tasks/${task.id}`, { method: 'PUT', body: JSON.stringify(task) });
+                },
+                onTaskDelete: (taskId) => {
+                    console.log("Task Deleted:", taskId);
+                    // Place your API DELETE call here if you were using a server
+                    // Example: fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
+                },
+                
+                // --- CUSTOM MODAL EXAMPLE (Uncomment and modify to use your own modal HTML) ---
+                /*
+                modalTemplate: `
+                    <div class="gantt-modal">
+                        <h2 id="modal-title">Edit Task</h2>
+                        <div class="gantt-modal-content" id="custom-modal-content">
+                            <form onsubmit="return false;">
+                                <input type="hidden" id="modal-task-id">
+                                
+                                <div class="form-group">
+                                    <label for="modal-task-name">Task Name (Custom)</label>
+                                    <input type="text" id="modal-task-name" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="modal-task-parent">Parent Task (Custom)</label>
+                                    <select id="modal-task-parent"></select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="modal-task-start">Start Date (Custom)</label>
+                                    <input type="date" id="modal-task-start" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="modal-task-end">End Date (Custom)</label>
+                                    <input type="date" id="modal-task-end" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="modal-task-progress">Progress (%) (Custom)</label>
+                                    <input type="number" id="modal-task-progress" min="0" max="100">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="modal-task-assignedUser">Assigned To (Custom)</label>
+                                    <select id="modal-task-assignedUser" multiple></select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="modal-task-status">Task Status (Custom)</label>
+                                    <select id="modal-task-status"></select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="modal-task-dependencies">Dependencies (Custom)</label>
+                                    <select id="modal-task-dependencies" multiple></select>
+                                </div>
+
+                                </form>
+                        </div>
+                        <div class="gantt-modal-actions">
+                            <button class="btn-delete" id="modal-delete-btn">Delete</button>
+                            <button class="btn-cancel" id="modal-cancel-btn">Cancel</button>
+                            <button class="btn-save" id="modal-save-btn">Save</button>
+                        </div>
+                    </div>
+                `
+                */
+                // --- END CUSTOM MODAL EXAMPLE ---
+            };
+            
+            // Assign the created instance to the global reference
+            ganttInstance = new VikCraftGantt('my-gantt-chart', myTasks, ganttOptions); // Renamed class
+        }
+
+        // --- Server-Side Example (Commented Out) ---
+        /*
+        async function initializeGanttWithApiData() {
+            // Define your API endpoints
+            const tasksApiEndpoint = 'http://localhost:8000/projects/46/tasks/json/';
+            const resourcesApiEndpoint = 'http://8000/projects/46/team/options/'; // Corrected port if needed
+
+            try {
+                // Fetch both tasks and resources
+                const [taskResponse, resourceResponse] = await Promise.all([
+                    fetch(tasksApiEndpoint),
+                    fetch(resourcesApiEndpoint)
+                ]);
+
+                if (!taskResponse.ok) throw new Error(`Failed to fetch tasks: ${taskResponse.statusText}`);
+                if (!resourceResponse.ok) throw new Error(`Failed to fetch resources: ${resourceResponse.statusText}`);
+
+                const rawTasks = await taskResponse.json();
+                const projectResources = await resourceResponse.json();
+
+                // MAP YOUR API DATA
+                const mappedTasks = rawTasks.map(task => ({
+                    id: task.id,
+                    name: task.name,
+                    start: task.start,
+                    end: task.end,
+                    progress: task.percent,
+                    assignedUser: task.resources, // Assuming 'resources' is an array of resource IDs/names
+                    dependencies: task.depend_ids,
+                    parent: task.parent,
+                    status: task.status // Assuming 'status' comes from your API
+                }));
+                
+                const ganttOptions = {
+                    theme: 'light', 
+                    resources: projectResources,
+                    columns: [
+                        { id: 'sl_no', text: '#', flex: '0 0 40px' },
+                        { id: 'name', text: 'Task Name', flex: '1 1 220px', type: 'text' },
+                        { id: 'start', text: 'Start Date', flex: '0 0 90px', type: 'date' },
+                        { id: 'end', text: 'End Date', flex: '0 0 90px', type: 'date' },
+                        { id: 'progress', text: 'Progress', flex: '0 0 90px', type: 'number' },
+                        { id: 'assignedUser', text: 'Assignees', flex: '1 1 150px', type: 'multiselect', optionsSource: 'resources' },
+                        { id: 'status', text: 'Status', flex: '0 0 100px', type: 'select', options: ['Not Started', 'In Progress', 'Completed', 'On Hold'] }
+                    ],
+                    features: { zoom: true, viewModes: true, columnResize: true },
+                    
+                    onTaskAdd: (task) => {
+                        console.log("Task Added:", task);
+                        // Place your API POST call here
+                    },
+                    onTaskUpdate: (task) => {
+                        console.log("Task Updated:", task);
+                        // Place your API PUT/PATCH call here
+                    },
+                    onTaskDelete: (taskId) => {
+                        console.log("Task Deleted:", taskId);
+                        // Place your API DELETE call here
+                    }
+                };
+                
+                ganttInstance = new VikCraftGantt('my-gantt-chart', mappedTasks, ganttOptions);
+            } catch (error) {
+                console.error("Failed to initialize Gantt chart:", error);
+                document.getElementById('my-gantt-chart').innerHTML = `<p style="text-align:center; color:red;">Could not load project data. Ensure your API server is running.</p>`;
+            }
+        }
+        */
+
+        document.addEventListener('DOMContentLoaded', initializeGanttWithStaticData); // Changed to static data init
+
+        // ** ADD THIS: Event listeners for the new theme buttons **
+        document.addEventListener('click', (e) => {
+            if (!ganttInstance) return; // Wait for gantt to be initialized
+
+            if (e.target.id === 'theme-light') {
+                ganttInstance.setTheme('light');
+            } else if (e.target.id === 'theme-dark') {
+                ganttInstance.setTheme('dark');
+            } else if (e.target.id === 'theme-narrow') {
+                ganttInstance.setTheme('narrow');
+            }
+        });
+
+    </script>
+
+</body>
+</html>
