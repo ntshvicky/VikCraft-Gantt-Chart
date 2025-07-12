@@ -2,7 +2,7 @@
 
 VikCraft Gantt is a vanilla JavaScript library for creating interactive and highly configurable Gantt charts. It allows you to visualize project tasks, their durations, dependencies, and assigned resources in a clear, intuitive timeline.
 
-[VikCraftGantt]: https://vikcraftdt.nitishsrivastava.com/
+[VikCraftGantt]: https://vikcraftgantt.nitishsrivastava.com/
 For a demonstration, visit the [VikCraft Gantt Chart demo][VikCraftGantt].
 You can also find the full documentation on their [website][VikCraftGantt].
 
